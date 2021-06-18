@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    # Run at 1:10 on Sunday
+    # Run at 01:10 on Sunday
     - cron: "10 1 * * 0"
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         arch:
-          - arm
+          - armhfp
           - arm64
           - amd64
     steps:
@@ -47,7 +47,7 @@ jobs:
     strategy:
       matrix:
         arch:
-          - arm
+          - armhfp
           - arm64
           - amd64
     steps:
@@ -73,12 +73,12 @@ jobs:
       # armhfp
       - uses: actions/download-artifact@v2
         with:
-          name: gcc-ssh-arm
+          name: gcc-ssh-armhfp
 
-      - name: Load the arm64 image
-        run: podman image load -i gcc-ssh-arm.tar
+      - name: Load the armhfp image
+        run: podman image load -i gcc-ssh-armhfp.tar
 
-      - name: Add the arm image to the manifest
+      - name: Add the armhfp image to the manifest
         run: buildah manifest add gcc-ssh-multiarch:latest localhost/gcc-ssh
 
       # aarch64
