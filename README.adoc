@@ -1,0 +1,108 @@
+= GCC SSH Image
+Jordan Williams <jordan@jwillikers.com>
+:experimental:
+:icons: font
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+:Buildah: https://buildah.io/[Buildah]
+:CLion: https://www.jetbrains.com/clion/[CLion]
+:Fedora: https://getfedora.org/[Fedora]
+:Fedora-Silverblue: https://silverblue.fedoraproject.org/[Fedora Silverblue]
+:GCC: https://gcc.gnu.org/[GCC]
+:OpenSSH: https://www.openssh.com/[OpenSSH]
+:Podman: https://podman.io/[Podman]
+:Visual-Studio-Code: https://code.visualstudio.com/[Visual Studio Code]
+
+image:https://img.shields.io/github/workflow/status/jwillikers/gcc-ssh-image/CI/main[GitHub Workflow Status]
+
+A container image for running the {GCC} toolchain from an {OpenSSH} server, built on {Fedora}.
+Comes complete with CMake, Conan, Ninja, and Clang tools.
+
+== Synopsis
+
+This container is meant to be used with IDE's that support remote development over SSH, such as {CLion} and {Visual Studio Code}.
+You might find this workflow particularly helpful if you develop on an immutable base operating system, such as {Fedora Silverblue}.
+
+Supported architectures:: `amd64`, `arm32v7`, `arm64v8`
+User:: user
+Password:: password
+
+== Quick Start
+
+To use the GCC toolchain inside the container, execute commands via {Podman}.
+
+[source,sh]
+----
+➜ podman run --rm -p 2222:22 --volume "$HOME":/home/user:Z -dt --name gcc-ssh quay.io/jwillikers/gcc-ssh
+----
+
+== Build
+
+Use {Buildah} to build the image.
+
+. Install the necessary dependencies.
++
+[source,sh]
+----
+➜ sudo dnf -y install git buildah podman
+----
+
+. Clone this repository.
++
+[source,sh]
+----
+➜ git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
+----
+
+. Run the shell script.
++
+[source,sh]
+----
+➜ ~/Projects/gcc-ssh-image/gcc-ssh-image.sh
+----
+
+== Learn More
+
+* https://blog.jetbrains.com/clion/2020/01/using-docker-with-clion/[Using Docker with CLion]
+* https://code.visualstudio.com/docs/remote/ssh[Visual Studio Code - Remote Development using SSH]
+
+== Contributing
+
+Contributions in the form of issues, feedback, and even pull requests are welcome.
+Make sure to adhere to the project's link:CODE_OF_CONDUCT.adoc[Code of Conduct].
+
+== Open Source Software
+
+This project is built on the hard work of countless open source contributors.
+Several of these projects are enumerated below.
+
+* https://asciidoctor.org/[Asciidoctor]
+* {Buildah}
+* {Fedora}
+* {GCC}
+* https://git-scm.com/[Git]
+* https://www.linuxfoundation.org/[Linux]
+* {OpenSSH}
+* {Podman}
+* https://www.python.org/[Python]
+* https://rouge.jneen.net/[Rouge]
+* https://www.ruby-lang.org/en/[Ruby]
+
+== Code of Conduct
+
+The project's Code of Conduct is available in the link:CODE_OF_CONDUCT.adoc[Code of Conduct] file.
+
+== License
+
+This repository is licensed under the https://www.gnu.org/licenses/gpl-3.0.html[GPLv3], available in the link:LICENSE.adoc[license file].
+
+© 2021 Jordan Williams
+
+== Authors
+
+mailto:{email}[{author}]
