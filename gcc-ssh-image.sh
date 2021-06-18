@@ -41,7 +41,7 @@ while getopts ":a:h" option; do
    esac
 done
 
-CONTAINER=$(buildah from --arch "$ARCHITECTURE" registry.fedoraproject.org/fedora-minimal:latest)
+CONTAINER=$(buildah from --arch "$ARCHITECTURE" quay.io/jwillikers/openssh-server:latest)
 IMAGE="gcc-ssh"
 
 buildah run "$CONTAINER" /bin/sh -c 'microdnf install -y clang-tools-extra cmake gdb gcc gcc-c++ ninja-build python3 python3-pip python3-wheel python-unversioned-command --nodocs --setopt install_weak_deps=0'
