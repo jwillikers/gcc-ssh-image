@@ -11,7 +11,7 @@ Help()
    echo
    echo "Syntax: gcc-ssh-image.sh [-a|h]"
    echo "options:"
-   echo "a     Build for the specified target architecture, i.e. amd64, armhfp, arm64."
+   echo "a     Build for the specified target architecture, i.e. amd64, arm, arm64."
    echo "h     Print this Help."
    echo
 }
