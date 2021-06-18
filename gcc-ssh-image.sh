@@ -54,8 +54,6 @@ buildah run "$CONTAINER" /bin/sh -c 'python -m pip install cmakelang[yaml]'
 
 buildah run "$CONTAINER" /bin/sh -c 'python -m pip cache purge'
 
-buildah config --user user "$CONTAINER"
-
 buildah config --workingdir /home/user "$CONTAINER"
 
 buildah config --author "jordan@jwillikers.com" "$CONTAINER"
