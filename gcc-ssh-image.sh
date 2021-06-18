@@ -56,6 +56,8 @@ buildah run "$CONTAINER" /bin/sh -c 'python -m pip cache purge'
 
 buildah config --workingdir /home/user "$CONTAINER"
 
+buildah config --label "io.containers.autoupdate=registry" "$CONTAINER"
+
 buildah config --author "jordan@jwillikers.com" "$CONTAINER"
 
 buildah commit "$CONTAINER" "$IMAGE"
