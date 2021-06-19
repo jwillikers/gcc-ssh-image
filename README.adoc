@@ -38,7 +38,7 @@ To use the GCC toolchain inside the container, execute commands via {Podman}.
 
 [source,sh]
 ----
-➜ podman run --rm -p 2222:22 --volume "$HOME":/home/user:Z -dt --name gcc-ssh quay.io/jwillikers/gcc-ssh
+➜ podman run --rm -p 2222:22 --volume "$HOME":/home/user:Z -dt --name gcc-ssh quay.io/jwillikers/gcc-ssh:latest
 ----
 
 == Build
