@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        # minimum_pre_commit_version: 2.4.0
+        language: system
+        # additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt@v3.3.0]
+        entry: shellcheck
+        types: [shell]
+  - repo: local
+    hooks:
+      - id: shfmt
+        name: shfmt
+        # minimum_pre_commit_version: 2.4.0
+        language: system
+        # additional_dependencies: [mvdan.cc/sh/v3/cmd/shfmt@v3.3.0]
+        entry: shfmt
+        args: [-w]
+        types: [shell]

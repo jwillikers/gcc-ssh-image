@@ -7,13 +7,17 @@
         "adoc",
         "armhfp",
         "cmake",
+        "commit's",
         "creds",
         "ide",
         "ide's",
         "jwillikers",
         "multiarch",
+        "mvdan",
         "openfortivpn",
         "sh",
+        "shellcheck",
+        "shfmt",
         "toolchain",
         "workdir"
     ]

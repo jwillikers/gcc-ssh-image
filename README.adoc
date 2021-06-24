@@ -43,27 +43,55 @@ To use the GCC toolchain inside the container, execute commands via {Podman}.
 
 == Build
 
-Use {Buildah} to build the image.
+This project uses {Buildah} and {Podman} for building and testing the image.
+To ensure the shell scripts are kept in good working order, the project uses ShellCheck and shfmt.
+A set of pre-commit checks are readily available to ensure your code is up-to-spec before it is committed.
+Instructions for setting up a development environment, building the image, and testing the image follow.
+These instructions are intended for users of {Fedora-Silverblue}.
+Standard Fedora users can just remove the `toolbox run` commands.
 
-. Install the necessary dependencies.
+I should probably just provide a container with a Bash development environment, shouldn't I?
+
+. Install the dependencies.
 +
 [source,sh]
 ----
-➜ sudo dnf -y install git buildah podman
+➜ toolbox run sudo dnf -y install buildah git podman pre-commit ShellCheck shfmt
 ----
 
 . Clone this repository.
 +
 [source,sh]
 ----
-➜ git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
+➜ toolbox run git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
 ----
 
-. Run the shell script.
+. Change into the project directory.
 +
 [source,sh]
 ----
-➜ ~/Projects/gcc-ssh-image/gcc-ssh-image.sh
+➜ cd ~/Projects/gcc-ssh-image
+----
+
+. Install pre-commit's Git hooks
++
+[source,sh]
+----
+➜ toolbox run pre-commit install
+----
+
+. Run the shell script to build the image.
++
+[source,sh]
+----
+➜ toolbox run ~/Projects/gcc-ssh-image/gcc-ssh-image.sh
+----
+
+. Test the image with the `test.sh` shell script.
++
+[source,sh]
+----
+➜ toolbox run ~/Projects/gcc-ssh-image/test.sh
 ----
 
 == Learn More
@@ -84,6 +112,7 @@ Several of these projects are enumerated below.
 * https://asciidoctor.org/[Asciidoctor]
 * {Buildah}
 * {Fedora}
+* {Fedora-Silverblue}
 * {GCC}
 * https://git-scm.com/[Git]
 * https://www.linuxfoundation.org/[Linux]

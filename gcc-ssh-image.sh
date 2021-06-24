@@ -4,16 +4,15 @@ set -o errexit
 ############################################################
 # Help                                                     #
 ############################################################
-Help()
-{
-   # Display Help
-   echo "Generate a container image for the GCC toolchain with Buildah."
-   echo
-   echo "Syntax: gcc-ssh-image.sh [-a|h]"
-   echo "options:"
-   echo "a     Build for the specified target architecture, i.e. amd64, armhfp, arm64."
-   echo "h     Print this Help."
-   echo
+Help() {
+	# Display Help
+	echo "Generate a container image for the GCC toolchain with Buildah."
+	echo
+	echo "Syntax: gcc-ssh-image.sh [-a|h]"
+	echo "options:"
+	echo "a     Build for the specified target architecture, i.e. amd64, armhfp, arm64."
+	echo "h     Print this Help."
+	echo
 }
 
 ############################################################
@@ -23,22 +22,24 @@ Help()
 ############################################################
 
 # Set variables
-ARCHITECTURE="$(podman info --format={{".Host.Arch"}})"
+ARCHITECTURE="$(podman info --format='{{".Host.Arch"}}')"
 
 ############################################################
 # Process the input options. Add options as needed.        #
 ############################################################
 while getopts ":a:h" option; do
-   case $option in
-      h) # display Help
-         Help
-         exit;;
-      a) # Enter a target architecture
-         ARCHITECTURE=$OPTARG;;
-     \?) # Invalid option
-         echo "Error: Invalid option"
-         exit;;
-   esac
+	case $option in
+	h) # display Help
+		Help
+		exit
+		;;
+	a) # Enter a target architecture
+		ARCHITECTURE=$OPTARG ;;
+	\?) # Invalid option
+		echo "Error: Invalid option"
+		exit
+		;;
+	esac
 done
 
 CONTAINER=$(buildah from --arch "$ARCHITECTURE" quay.io/jwillikers/openssh-server:latest)
