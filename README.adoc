@@ -84,7 +84,7 @@ I should probably just provide a container with a Bash development environment, 
 +
 [source,sh]
 ----
-➜ toolbox run ~/Projects/gcc-ssh-image/gcc-ssh-image.sh
+➜ toolbox run ~/Projects/gcc-ssh-image/build.sh
 ----
 
 . Test the image with the `test.sh` shell script.
