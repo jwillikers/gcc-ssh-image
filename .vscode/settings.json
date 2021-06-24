@@ -19,6 +19,7 @@
         "shellcheck",
         "shfmt",
         "toolchain",
+        "userns",
         "workdir"
     ]
 }

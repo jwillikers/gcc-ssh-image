@@ -62,7 +62,16 @@ jobs:
         run: podman image load -i gcc-ssh-${{ matrix.arch }}.tar
 
       - name: Run the image and verify GCC is available inside the container
-        run: ./test.sh
+        run: |
+          podman run --rm --name test-container -dt -p 2222:22 localhost/gcc-ssh
+          sleep 5
+          nc -z localhost 22
+
+          podman exec --userns keep-id --user user --rm --volume ${{ github.workspace }}:/home/user:Z --name test-container localhost/gcc-ssh g++ test/main.cpp
+          podman exec --userns keep-id --user user --rm --volume ${{ github.workspace }}:/home/user:Z --name test-container localhost/gcc-ssh ./a.out
+          rm a.out
+
+          podman stop test-container
 
   publish:
     name: Publish
