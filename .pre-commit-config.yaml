@@ -2,22 +2,27 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
       - id: check-json
+      - id: check-merge-conflict
       - id: check-yaml
       - id: end-of-file-fixer
+      - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: local
     hooks:
       - id: shellcheck
         name: shellcheck
         language: system
-        entry: shellcheck
+        entry: podman run --rm -v "$PWD:/mnt:Z" docker.io/koalaman/shellcheck:latest
+        args: [--color=always]
         types: [shell]
   - repo: local
     hooks:
       - id: shfmt
         name: shfmt
         language: system
-        entry: shfmt
+        entry: podman run --rm -v "$PWD:/mnt:Z" -w /mnt docker.io/mvdan/shfmt:latest
         args: [-w]
         types: [shell]
