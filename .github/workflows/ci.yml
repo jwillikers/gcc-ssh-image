@@ -27,6 +27,7 @@ jobs:
 
   build:
     name: Build
+    needs: check
     runs-on: ubuntu-latest
     strategy:
       matrix:

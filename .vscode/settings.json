@@ -16,6 +16,7 @@
         "multiarch",
         "mvdan",
         "openfortivpn",
+        "repos",
         "sh",
         "shellcheck",
         "shfmt",
