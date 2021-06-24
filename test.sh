@@ -5,8 +5,8 @@ podman run --userns keep-id --volume "$PWD":/home/user:Z --rm --name test-contai
 sleep 5
 nc -z localhost 22
 
-podman exec --user user --rm test-container g++ test/main.cpp
-podman exec --user user --rm test-container ./a.out
+podman exec --user user test-container g++ test/main.cpp
+podman exec --user user test-container ./a.out
 rm a.out
 
 podman stop test-container
