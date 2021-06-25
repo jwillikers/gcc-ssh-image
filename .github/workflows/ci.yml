@@ -78,7 +78,7 @@ jobs:
         run: podman image load -i gcc-ssh-${{ matrix.arch }}.tar
 
       - name: Create a container and start the OpenSSH server using the image
-        run: podman run --userns keep-id --volume ${{ github.workspace }}:/home/user:Z --rm --name test-container -dt -p 2222:22 localhost/gcc-ssh
+        run: podman run --volume ${{ github.workspace }}:/home/user:Z --rm --name test-container -dt -p 2222:22 localhost/gcc-ssh
 
       - name: Wait for everything to start up
         run: sleep 5
