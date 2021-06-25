@@ -23,6 +23,7 @@
         "shfmt",
         "toolchain",
         "userns",
+        "venv",
         "workdir"
     ]
 }

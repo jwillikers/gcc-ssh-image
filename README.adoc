@@ -46,24 +46,40 @@ To use the GCC toolchain inside the container, execute commands via {Podman}.
 This project uses {Buildah} and {Podman} for building and testing the image.
 To ensure the shell scripts are kept in good working order, the project uses ShellCheck and shfmt.
 A set of pre-commit checks are readily available to ensure your code is up-to-spec before it is committed.
+Both ShellCheck and shfmt are run via Podman using their official Docker containers as pre-commit hooks.
+Cool, right?
 Instructions for setting up a development environment, building the image, and testing the image follow.
-These instructions are intended for users of {Fedora-Silverblue}.
-Standard Fedora users can just remove the `toolbox run` commands.
+These instructions are intended for users of {Fedora-Silverblue}, where the packages `buildah`, `git`, and `podman` are already available.
 
 I should probably just provide a container with a Bash development environment, shouldn't I?
-
-. Install the dependencies.
-+
-[source,sh]
-----
-➜ toolbox run sudo dnf -y install buildah git podman pre-commit ShellCheck shfmt
-----
+While I'm thinking about, putting pre-commit and Git in their own container may not be a bad idea if I can get Podman-in-Podman working.
 
 . Clone this repository.
 +
 [source,sh]
 ----
-➜ toolbox run git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
+➜ git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
+----
+
+. Create a fresh Python virtual environment.
++
+[source,sh]
+----
+➜ python -m venv ~/Projects/gcc-ssh-image/venv
+----
+
+. Activate the virtual environment.
++
+[source,sh]
+----
+➜ source ~/Projects/gcc-ssh-image/venv/bin/activate.fish
+----
+
+. Install the development dependencies.
++
+[source,sh]
+----
+➜ pip install -r ~/Projects/gcc-ssh-image/requirements-dev.txt
 ----
 
 . Change into the project directory.
@@ -77,21 +93,21 @@ I should probably just provide a container with a Bash development environment, 
 +
 [source,sh]
 ----
-➜ toolbox run pre-commit install
+➜ pre-commit install
 ----
 
 . Run the shell script to build the image.
 +
 [source,sh]
 ----
-➜ toolbox run ~/Projects/gcc-ssh-image/build.sh
+➜ ~/Projects/gcc-ssh-image/build.sh
 ----
 
 . Test the image with the `test.sh` shell script.
 +
 [source,sh]
 ----
-➜ toolbox run ~/Projects/gcc-ssh-image/test.sh
+➜ ~/Projects/gcc-ssh-image/test.sh
 ----
 
 == Learn More
