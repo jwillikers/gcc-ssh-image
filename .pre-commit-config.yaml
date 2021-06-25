@@ -15,7 +15,7 @@ repos:
       - id: shellcheck
         name: shellcheck
         language: system
-        entry: podman run --rm -v "$PWD:/mnt:Z" docker.io/koalaman/shellcheck:latest
+        entry: podman run --rm -v ".:/mnt:Z" docker.io/koalaman/shellcheck:latest
         args: [--color=always]
         types: [shell]
   - repo: local
@@ -23,6 +23,6 @@ repos:
       - id: shfmt
         name: shfmt
         language: system
-        entry: podman run --rm -v "$PWD:/mnt:Z" -w /mnt docker.io/mvdan/shfmt:latest
+        entry: podman run --rm -v ".:/mnt:Z" -w /mnt docker.io/mvdan/shfmt:latest
         args: [-w]
         types: [shell]

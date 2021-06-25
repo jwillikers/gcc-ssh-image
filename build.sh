@@ -22,7 +22,7 @@ Help() {
 ############################################################
 
 # Set variables
-ARCHITECTURE="$(podman info --format='{{".Host.Arch"}}')"
+ARCHITECTURE="$(buildah info --format=\{\{".host.arch"\}\})"
 
 ############################################################
 # Process the input options. Add options as needed.        #
