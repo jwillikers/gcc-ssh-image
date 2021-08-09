@@ -13,12 +13,16 @@ endif::[]
 :CLion: https://www.jetbrains.com/clion/[CLion]
 :Fedora: https://getfedora.org/[Fedora]
 :Fedora-Silverblue: https://silverblue.fedoraproject.org/[Fedora Silverblue]
+:fish: https://fishshell.com/[fish]
 :GCC: https://gcc.gnu.org/[GCC]
+:Git: https://git-scm.com/[Git]
 :OpenSSH: https://www.openssh.com/[OpenSSH]
 :Podman: https://podman.io/[Podman]
+:pre-commit: https://pre-commit.com/[pre-commit]
 :Visual-Studio-Code: https://code.visualstudio.com/[Visual Studio Code]
 
 image:https://img.shields.io/github/workflow/status/jwillikers/gcc-ssh-image/CI/main[GitHub Workflow Status]
+image:https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white[pre-commit, link=https://github.com/pre-commit/pre-commit]
 
 A container image for running the {GCC} toolchain from an {OpenSSH} server, built on {Fedora}.
 Comes complete with CMake, Conan, Ninja, and Clang tools.
@@ -28,86 +32,127 @@ Comes complete with CMake, Conan, Ninja, and Clang tools.
 This container is meant to be used with IDE's that support remote development over SSH, such as {CLion} and {Visual Studio Code}.
 You might find this workflow particularly helpful if you develop on an immutable base operating system, such as {Fedora Silverblue}.
 
-Supported architectures:: `amd64`, `arm32v7`, `arm64v8`
-User:: user
-Password:: password
+Image:: https://quay.io/repository/jwillikers/gcc-ssh[quay.io/jwillikers/gcc-ssh]
+
+Tags::
+* `latest`
+
+Supported architectures::
+* `amd64` _(x86_64)_
+* `arm` _(armhfp)_
+* `arm64` _(aarch64)_
+
+Users::
+`root`::: The default user inside the container is `root` since the OpenSSH server must be started by the superuser.
+`user`::: A user named `user` is also created with the default password `password`.
+
+Volumes::
+`/etc/ssh`::: Where the container's own server-side SSH keys reside as well as various configuration files.
+`/home/user/.ssh`::: The default user's SSH keys and configuration.
+
+Cmd:: `["/usr/sbin/sshd", "-D", "-e"]`
+
+Labels::
+`io.containers.autoupdate=registry`::: Enables automatic updates when using {Podman} and the _fully-qualified_ image name.
 
 == Quick Start
 
-To use the GCC toolchain inside the container, execute commands via {Podman}.
+. To run the OpenSSH server from this image, run the container using {Podman}.
++
+--
+Use the `-p` flag to port-forward the SSH port, port 22, from the container to the host.
+To attach a device such as a serial console, add the `--security-opt label=disable` to disable SELinux and pass through the desired device with the `--device` flag.
+The following example forwards port 22 in the container to port 2222 on localhost and allows access to the device `/dev/ttyBmpGdb`.
 
 [source,sh]
 ----
-➜ podman run --rm -p 2222:22 --volume "$HOME":/home/user:Z -dt --name gcc-ssh quay.io/jwillikers/gcc-ssh:latest
+podman run \
+  --rm \
+  -p 2222:22 \
+  --security-opt label=disable \
+  --device /dev/ttyBmpGdb:/dev/ttyBmpGdb \
+  --name gcc-ssh \
+  -dt quay.io/jwillikers/gcc-ssh:latest
 ----
+
+[NOTE]
+====
+To access the SSH server from another container, simply run the containers in the same pod.
+This doesn't even require port forwarding!
+====
+--
+
+. The container should then be accessible using SSH from the local machine.
++
+[source,sh]
+----
+ssh -p 2222 user@127.0.0.1
+----
+
+. Enter the default password for the user named `user`, which is `password`.
 
 == Build
 
 This project uses {Buildah} and {Podman} for building and testing the image.
-To ensure the shell scripts are kept in good working order, the project uses ShellCheck and shfmt.
-A set of pre-commit checks are readily available to ensure your code is up-to-spec before it is committed.
-Both ShellCheck and shfmt are run via Podman using their official Docker containers as pre-commit hooks.
-Cool, right?
+A set of {pre-commit} checks are readily available to ensure your code is up-to-spec at the time it is committed.
 Instructions for setting up a development environment, building the image, and testing the image follow.
 These instructions are intended for users of {Fedora-Silverblue}, where the packages `buildah`, `git`, and `podman` are already available.
+Moreover, I use the {fish} shell.
 
-I should probably just provide a container with a Bash development environment, shouldn't I?
-While I'm thinking about, putting pre-commit and Git in their own container may not be a bad idea if I can get Podman-in-Podman working.
+. Install the {fish} shell.
++
+[source,sh]
+----
+sudo rpm-ostree install fish
+----
+
+. Reboot to finish the installation.
++
+[source,sh]
+----
+systemctl reboot
+----
 
 . Clone this repository.
 +
 [source,sh]
 ----
-➜ git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
+git -C ~/Projects clone git@github.com:jwillikers/gcc-ssh-image.git
 ----
 
-. Create a fresh Python virtual environment.
+. Install {pre-commit}.
 +
 [source,sh]
 ----
-➜ python -m venv ~/Projects/gcc-ssh-image/venv
-----
-
-. Activate the virtual environment.
-+
-[source,sh]
-----
-➜ source ~/Projects/gcc-ssh-image/venv/bin/activate.fish
-----
-
-. Install the development dependencies.
-+
-[source,sh]
-----
-➜ pip install -r ~/Projects/gcc-ssh-image/requirements-dev.txt
+pip install pre-commit
 ----
 
 . Change into the project directory.
 +
 [source,sh]
 ----
-➜ cd ~/Projects/gcc-ssh-image
+cd ~/Projects/gcc-ssh-image
 ----
 
-. Install pre-commit's Git hooks
+. Install pre-commit's Git hooks.
 +
 [source,sh]
 ----
-➜ pre-commit install
+pre-commit install
 ----
 
 . Run the shell script to build the image.
 +
 [source,sh]
 ----
-➜ ~/Projects/gcc-ssh-image/build.sh
+buildah unshare ~/Projects/gcc-ssh-image/build.fish
 ----
 
-. Test the image with the `test.sh` shell script.
+. Test the image with the `test.fish` shell script.
 +
 [source,sh]
 ----
-➜ ~/Projects/gcc-ssh-image/test.sh
+~/Projects/gcc-ssh-image/test.fish
 ----
 
 == Learn More
@@ -130,21 +175,22 @@ Several of these projects are enumerated below.
 * {Fedora}
 * {Fedora-Silverblue}
 * {GCC}
-* https://git-scm.com/[Git]
+* {Git}
 * https://www.linuxfoundation.org/[Linux]
 * {OpenSSH}
 * {Podman}
+* {pre-commit}
 * https://www.python.org/[Python]
 * https://rouge.jneen.net/[Rouge]
 * https://www.ruby-lang.org/en/[Ruby]
 
 == Code of Conduct
 
-The project's Code of Conduct is available in the link:CODE_OF_CONDUCT.adoc[Code of Conduct] file.
+Refer to the project's link:CODE_OF_CONDUCT.adoc[Code of Conduct] for details.
 
 == License
 
-This repository is licensed under the https://www.gnu.org/licenses/gpl-3.0.html[GPLv3], available in the link:LICENSE.adoc[license file].
+This repository is licensed under the https://www.gnu.org/licenses/gpl-3.0.html[GPLv3], a copy of which is provided in the link:LICENSE.adoc[license file].
 
 © 2021 Jordan Williams
 

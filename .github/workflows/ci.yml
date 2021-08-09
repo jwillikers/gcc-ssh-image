@@ -6,50 +6,40 @@ on:
     branches:
       - main
   schedule:
-    # Run at 06:10 on Sunday
-    - cron: "10 6 * * 0"
+    # Run at 04:10 on Sunday
+    - cron: "10 4 * * 0"
 
 jobs:
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v2
-      - name: Run the sh-checker
-        uses: luizm/action-sh-checker@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHELLCHECK_OPTS: --color=always
-          SHFMT_OPTS: -s
-        with:
-          sh_checker_comment: true
-
   build:
     name: Build
-    needs: check
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch:
-          - armhfp
-          - arm64
           - amd64
+          - arm64
+          - arm
     steps:
+      - name: Install the fish shell
+        uses: fish-actions/install-fish@v1.1.0
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
+
+      - name: Configure Podman and Buildah to use FUSE
+        run: |
+          sudo apt-get install fuse-overlayfs
+          mkdir -vp ~/.config/containers
+          printf '[storage]\ndriver="overlay"\n\n[storage.options]\nmount_program="/usr/bin/fuse-overlayfs"\n' > ~/.config/containers/storage.conf
 
       - name: Check out the repository
         uses: actions/checkout@v2
 
       - name: Build the image with Buildah
-        run: ./build.sh -a ${{ matrix.arch }}
-
-      - name: Tag the image for Fedora 34
-        run: podman tag localhost/gcc-ssh localhost/gcc-ssh:34
+        run: buildah unshare ./build.fish --architecture ${{ matrix.arch }} --name gcc-ssh-${{ matrix.arch }}
 
       - name: Export the image
-        run: podman image save --format oci-archive -o gcc-ssh-${{ matrix.arch }}.tar localhost/gcc-ssh
+        run: podman image save --format oci-archive -o gcc-ssh-${{ matrix.arch }}.tar localhost/gcc-ssh-${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v2
         with:
@@ -63,12 +53,18 @@ jobs:
     strategy:
       matrix:
         arch:
-          - armhfp
-          - arm64
           - amd64
+          - arm64
+          - arm
     steps:
+      - name: Install the fish shell
+        uses: fish-actions/install-fish@v1.1.0
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
+
+      - name: Check out the repository
+        uses: actions/checkout@v2
 
       - uses: actions/download-artifact@v2
         with:
@@ -77,14 +73,8 @@ jobs:
       - name: Load the image
         run: podman image load -i gcc-ssh-${{ matrix.arch }}.tar
 
-      - name: Create a container and start the OpenSSH server using the image
-        run: podman run --rm --name test-container -dt -p 2222:22 localhost/gcc-ssh
-
-      - name: Wait for everything to start up
-        run: sleep 5
-
-      - name: Verify the OpenSSH daemon is listening on port 22
-        run: nc -z localhost 22
+      - name: Test the container
+        run: ./test.fish --name gcc-ssh-${{ matrix.arch }}
 
   publish:
     name: Publish
@@ -93,40 +83,40 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Create a manifest
-        run: buildah manifest create gcc-ssh-multiarch:latest
+        run: buildah manifest create gcc-ssh:latest
 
       # armhfp
       - uses: actions/download-artifact@v2
         with:
-          name: gcc-ssh-armhfp
+          name: gcc-ssh-arm
 
       - name: Load the armhfp image
-        run: podman image load -i gcc-ssh-armhfp.tar
+        run: podman image load -i gcc-ssh-arm.tar
 
       - name: Add the armhfp image to the manifest
-        run: buildah manifest add gcc-ssh-multiarch:latest localhost/gcc-ssh
+        run: buildah manifest add gcc-ssh:latest localhost/gcc-ssh-arm
 
       # aarch64
       - uses: actions/download-artifact@v2
         with:
           name: gcc-ssh-arm64
 
-      - name: Load the arm64 image
+      - name: Load the aarch64 image
         run: podman image load -i gcc-ssh-arm64.tar
 
-      - name: Add the arm64 image to the manifest
-        run: buildah manifest add gcc-ssh-multiarch:latest localhost/gcc-ssh
+      - name: Add the aarch64 image to the manifest
+        run: buildah manifest add gcc-ssh:latest localhost/gcc-ssh-arm64
 
       # x86_64
       - uses: actions/download-artifact@v2
         with:
           name: gcc-ssh-amd64
 
-      - name: Load the amd64 image
+      - name: Load the x86_64 image
         run: podman image load -i gcc-ssh-amd64.tar
 
-      - name: Add the amd64 image to the manifest
-        run: buildah manifest add gcc-ssh-multiarch:latest localhost/gcc-ssh
+      - name: Add the x86_64 image to the manifest
+        run: buildah manifest add gcc-ssh:latest localhost/gcc-ssh-amd64
 
       - name: Push latest manifest and images to quay.io
-        run: buildah manifest push --rm --all --creds jwillikers+publisher:${{ secrets.REGISTRY_PASSWORD }} gcc-ssh-multiarch:latest docker://quay.io/jwillikers/gcc-ssh
+        run: buildah manifest push --rm --all --creds jwillikers+publisher:${{ secrets.REGISTRY_PASSWORD }} gcc-ssh:latest docker://quay.io/jwillikers/gcc-ssh
